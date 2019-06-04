@@ -1,7 +1,7 @@
 # Lazylapse
 Android App to run smart phone as autonomous time-lapse camera
 
-##List of features:
+## List of features:
 [] communication using SMS
 [] transfer of pictures to server using 3G
 [] 
