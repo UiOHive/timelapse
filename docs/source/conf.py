@@ -21,6 +21,8 @@ project = 'LazyLapse'
 copyright = '2019, Valentin HUE'
 author = 'Valentin HUE'
 
+master_doc = 'index'
+
 # The full version, including alpha/beta/rc tags
 release = '0'
 
