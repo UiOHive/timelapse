@@ -44,7 +44,7 @@ public class SettingsActivity extends PreferenceActivity {
         CameraManager cameras = (CameraManager) getSystemService(CAMERA_SERVICE); /*used to obtain cameras and their characteristics*/
         String[] listCameras;
         String[] listIdCameras;
-        try {
+        try { /* try/catch needed in the catch we display error as value in order to indicate the issue to the user (this shoudn't happen ever though*/
             listIdCameras = cameras.getCameraIdList();
             listCameras = new String[listIdCameras.length];
             for (String cameraId : listIdCameras) {
