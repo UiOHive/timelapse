@@ -41,7 +41,7 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        CameraManager cameras = (CameraManager) getSystemService(CAMERA_SERVICE);
+        CameraManager cameras = (CameraManager) getSystemService(CAMERA_SERVICE); /*used to obtain cameras and their characteristics*/
         String[] listCameras;
         String[] listIdCameras;
         try {
