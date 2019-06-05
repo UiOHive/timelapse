@@ -10,4 +10,4 @@ Android App to run smart phone as autonomous time-lapse camera
 The documentation is disponible on Readthedocs here : https://timelapse.readthedocs.io/en/latest/ 
 
 ## License
-See the license.md file
+See the LICENSE file
