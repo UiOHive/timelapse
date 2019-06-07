@@ -1,7 +1,9 @@
 package com.example.lazylapse;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -37,5 +39,4 @@ public class Controller extends AppCompatActivity {
                 startActivity(i);
             }});
     }
-
 }
