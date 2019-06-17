@@ -15,13 +15,13 @@ import android.widget.Toast;
 public class Controller extends AppCompatActivity {
     private ImageButton settingsButton;
     private ImageButton cameraButton;
-    private Photographer photographer;
+    private Picturer photographer;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        photographer = new Photographer();
+        photographer = new Picturer();
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -35,7 +35,7 @@ public class Controller extends AppCompatActivity {
         cameraButton = findViewById(R.id.buttonTimeLapse);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent i = new Intent(Controller.this, Photographer.class);
+                Intent i = new Intent(Controller.this, Picturer.class);
                 startActivity(i);
             }});
     }
