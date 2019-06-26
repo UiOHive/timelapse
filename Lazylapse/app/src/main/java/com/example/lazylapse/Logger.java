@@ -52,7 +52,7 @@ public class Logger {
     public void addToLog(String msg){
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
         String date = dateFormat.format(new Date());
-        log += date+" :: "+msg+" \n ";
+        log += date+" :: "+msg+" \n";
         for(ILogVisitor visitor: visitors){
             visitor.visit(log);
         }

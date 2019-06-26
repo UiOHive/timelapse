@@ -8,6 +8,7 @@ import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.TextureView;
@@ -15,7 +16,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 import static android.os.SystemClock.sleep;
 
@@ -88,8 +93,7 @@ public class Photographer extends Activity {
 
     }
 
-    private void takePicture(){
-        logger.addToLog("taking a picture");
+    private void takePicture() {
         try {
             SurfaceTexture surfaceTexture = new SurfaceTexture(10);
             camera.setPreviewTexture(surfaceTexture);
@@ -98,9 +102,25 @@ public class Photographer extends Activity {
             logger.addToLog(e.getMessage());
         }
         camera.startPreview();
-        camera.takePicture(null, null, new PhotoHandler(getApplicationContext()));
-    }
 
+        Camera.Parameters params = camera.getParameters();
+
+        List<Camera.Size> sizes = params.getSupportedPictureSizes();
+        Camera.Size size = sizes.get(0);
+        for(int i=0;i<sizes.size();i++)
+        {
+            if(sizes.get(i).width > size.width)
+                size = sizes.get(i);
+        }
+        params.setPictureSize(size.width, size.height);
+
+        logger.addToLog("taking a picture");
+        params.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
+        camera.setParameters(params);
+
+        camera.takePicture(null, null, new PhotoHandler(getApplicationContext()));
+
+    }
 
     private int findBackFacingCamera() {
         int cameraId = -1;

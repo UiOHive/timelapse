@@ -1,10 +1,5 @@
 package com.example.lazylapse;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import android.content.Context;
 import android.hardware.Camera;
 import android.hardware.Camera.PictureCallback;
@@ -12,11 +7,16 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
-public class PhotoHandler implements PictureCallback {
+import java.io.File;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class PhotoHandlerRaw implements PictureCallback {
 
     private final Context context;
 
-    public PhotoHandler(Context context) {
+    public PhotoHandlerRaw(Context context) {
         this.context = context;
     }
 
@@ -34,9 +34,9 @@ public class PhotoHandler implements PictureCallback {
 
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy'_'MMMM'_'dd'__'HH'_'mm'_'ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyymmddhhmmss");
         String date = dateFormat.format(new Date());
-        String photoFile = "Picture_" + date + ".jpg";
+        String photoFile = "Picture_" + date + ".dng";
 
         String filename = pictureFileDir.getPath() + File.separator + photoFile;
 

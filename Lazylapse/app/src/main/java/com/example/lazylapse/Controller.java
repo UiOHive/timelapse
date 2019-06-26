@@ -25,6 +25,7 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
     private AlarmManager alarmMgr;
     private TextView textLog;
     private Logger logger;
+    private SMSManager smsManager;
 
 
     @Override
@@ -46,24 +47,44 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
         cameraButton = findViewById(R.id.buttonTimeLapse);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent i = new Intent(Controller.this, Photographer.class);
-                i.putExtra(Constant.INSTANT_PICTURE,true);
-                startActivity(i);
+                try {
+                    smsManager.checkMessagesFromAdmin();
+                }
+                catch (Exception e){
+                    Toast.makeText(App.getContext(),e.getMessage(),Toast.LENGTH_LONG).show();
+                }
             }});
         timeLapseButton = findViewById(R.id.buttonLaunchTimeLapse);
         timeLapseButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v){
+
                 Intent intent = new Intent(Controller.this, Photographer.class);
                 intent.putExtra(Constant.INSTANT_PICTURE,true);
                 PendingIntent pendingIntent = PendingIntent.getActivity(Controller.this,1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-                alarmMgr.cancel(pendingIntent);
-                alarmMgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                        SystemClock.elapsedRealtime()+60*1000,
-                        30*60*1000, pendingIntent);
+                if(App.isTimeLapseStarted()){
+                    alarmMgr.cancel(pendingIntent);
+                    App.setTimeLapseStarted(false); // we set the variable in App rather than Controller in order to keep track of it even when new activity is created.
+                    logger.addToLog("Time lapse ended");
+                }
+                else {
+                    App.setTimeLapseStarted(true);
+
+                    logger.addToLog("Time lapse started");
+
+                    smsManager.sendMessage("CC time-lapse commencée CC (merci d'être beta testeur pour LazyLapse!!)");
+
+                    alarmMgr.cancel(pendingIntent);
+                    alarmMgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                            SystemClock.elapsedRealtime() + 60 * 1000,
+                            60 * 1000, pendingIntent);
+                }
             }});
         textLog = (TextView) findViewById(R.id.textView);
         textLog.setMovementMethod(new ScrollingMovementMethod());
+
+        smsManager = SMSManager.getSMSManager();
+
         try {
             logger = Logger.getLogger();
             logger.accept(this);
