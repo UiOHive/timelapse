@@ -10,20 +10,21 @@ import android.telephony.TelephonyManager;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.telephony.PhoneNumberUtils.formatNumber;
 
 public class SMSManager {
     private static SMSManager smsManager;
-    private String phoneNumber;
+    private String phoneNumbers;
     private Logger logger;
-    private String formattedNumber;
+    private String[] formattedNumbers;
 
     private SMSManager() {
         logger = Logger.getLogger();
 
-        phoneNumber = "none";
-        formattedNumber = "none";
+        phoneNumbers = "none";
 
         boolean ready = false;
 
@@ -56,10 +57,9 @@ public class SMSManager {
 
             String countryCodeValue = telMgr.getNetworkCountryIso();
 
-            phoneNumber = preferences.getString("phoneNumber", "none");
-            //formattedNumber = formatNumber(phoneNumber,countryCodeValue); // return either
-            // formatted telephone number with country code (based on SIM network country) or null
-            formattedNumber = phoneNumber;
+            phoneNumbers = preferences.getString("phoneNumber", "none");
+
+            formattedNumbers = phoneNumbers.split(";");
         }
     }
 
@@ -70,27 +70,55 @@ public class SMSManager {
 
         return smsManager;
     }
-    public void sendMessage(String message){
-        if(formattedNumber!="none") {
-            Toast.makeText(App.getContext(), "message send to " + formattedNumber, Toast.LENGTH_LONG).show();
+    public void sendMessage(String message, String address){
+        if(address!="none") {
+            Toast.makeText(App.getContext(), "message send to " + address, Toast.LENGTH_LONG).show();
 
             SmsManager smgr = SmsManager.getDefault();
             ArrayList<String> messages = smgr.divideMessage(message);
-            smgr.sendMultipartTextMessage(formattedNumber, null, messages, null, null);
+            smgr.sendMultipartTextMessage(address, null, messages, null, null);
         }
         else{
-            Toast.makeText(App.getContext(),"no phone number registered, message couldn't be sent!", Toast.LENGTH_LONG).show();
+            Toast.makeText(App.getContext(),"no phone number registered, message couldn't be sent!"
+                    , Toast.LENGTH_LONG).show();
+        }
+    }
+    public void sendMessage(String message){
+        for(String number : formattedNumbers){
+            sendMessage(message,number);
         }
     }
 
-    public void checkMessagesFromAdmin(){
-        String filter = "date>="+App.getLastSMSCheck().getTime()+" AND address=?"; //we select only messages that interest us
-        Cursor cursor = App.getContext().getContentResolver().query(Uri.parse("content://sms/inbox"), new String[]{"_id", "address", "date", "body"}, filter, new String[] {formattedNumber.replace(" ","")}, null);
-        App.setLastSMSCheck();
-        int n = 0;
-        while (cursor.moveToNext()) {
-            n++;
+    /**
+     * Functions that retrive all new messages from the admin since the last call to this function
+     * (or since the app started if not called yet)
+     * @return
+     */
+    public ArrayList<Map<String, String>> checkMessagesFromAdmin(){
+        String filter = "date>="+App.getLastSMSCheck().getTime()+" AND "; //we select only
+        // messages that interest us
+        String condAddress = "(";
+        for(String address: formattedNumbers){
+            condAddress+= "address= ? OR ";
+            address = address.replaceAll(" ","");
         }
-        Toast.makeText(App.getContext(),n+" new messages from admin!",Toast.LENGTH_LONG).show();
+        condAddress+="1=2)";
+        Cursor cursor = App.getContext().getContentResolver().query(Uri.parse("content://sms/inbox"),
+                new String[]{"_id", "address", "date", "body"}, filter+condAddress,
+                        formattedNumbers, null);
+        App.setLastSMSCheck();
+        ArrayList<Map<String,String>> messages = new ArrayList<>();
+        while (cursor.moveToNext()) {
+            Map<String,String> message = new HashMap<>();
+            message.put("id",cursor.getString(0));
+            message.put("address",cursor.getString(1));
+            message.put("date",cursor.getString(2));
+            message.put("body",cursor.getString(3));
+
+            messages.add(message);
+        }
+        Toast.makeText(App.getContext(),messages.size()+" new messages from admin!",
+                Toast.LENGTH_LONG).show();
+        return messages;
     }
 }

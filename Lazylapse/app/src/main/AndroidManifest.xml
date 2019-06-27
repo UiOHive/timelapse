@@ -21,9 +21,13 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <service
-            android:name=".PhoneStatus"
+            android:name=".SMSReader"
             android:enabled="true"
             android:exported="true"></service>
+        <service
+            android:name=".PhoneStatus"
+            android:enabled="true"
+            android:exported="true" />
 
         <activity
             android:name=".SettingsActivity"

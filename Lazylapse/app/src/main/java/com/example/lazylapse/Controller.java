@@ -47,12 +47,8 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
         cameraButton = findViewById(R.id.buttonTimeLapse);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                try {
-                    smsManager.checkMessagesFromAdmin();
-                }
-                catch (Exception e){
-                    Toast.makeText(App.getContext(),e.getMessage(),Toast.LENGTH_LONG).show();
-                }
+                Intent i = new Intent(Controller.this, SMSReader.class);
+                startService(i);
             }});
         timeLapseButton = findViewById(R.id.buttonLaunchTimeLapse);
         timeLapseButton.setOnClickListener(new View.OnClickListener() {

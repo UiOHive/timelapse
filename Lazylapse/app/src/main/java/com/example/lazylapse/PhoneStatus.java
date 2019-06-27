@@ -12,6 +12,8 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.File;
+
 public class PhoneStatus extends Service {
     private NotificationManager mNM;
 
@@ -33,12 +35,11 @@ public class PhoneStatus extends Service {
 
     @Override
     public void onCreate() {
-        mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+    }
 
-        // Display a notification about us starting.  We put an icon in the status bar.
-        showNotification();
-
-        //get info on the battery
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+                //get info on the battery
         IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = App.getContext().registerReceiver(null, ifilter);
 
@@ -53,16 +54,14 @@ public class PhoneStatus extends Service {
 
         message += "battery level = "+batteryPct+"% \n";
 
-        smsManager.sendMessage(message);
+        long freeBytesInternal = new File(getFilesDir().getAbsoluteFile().toString()).getFreeSpace();
 
+        message +="Free space in internal memory = "+freeBytesInternal/8/1024+ " ko";
 
+        String address = intent.getStringExtra("address");
+        smsManager.sendMessage(message,address);
 
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i("PhoneStatus", "Received start id " + startId + ": " + intent);
-        return START_NOT_STICKY;
+        return flags;
     }
 
     @Override
