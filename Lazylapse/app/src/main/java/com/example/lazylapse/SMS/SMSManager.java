@@ -1,4 +1,4 @@
-package com.example.lazylapse;
+package com.example.lazylapse.SMS;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -8,6 +8,9 @@ import android.preference.PreferenceManager;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.widget.Toast;
+
+import com.example.lazylapse.App;
+import com.example.lazylapse.Interface.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -70,22 +73,40 @@ public class SMSManager {
 
         return smsManager;
     }
-    public void sendMessage(String message, String address){
-        if(address!="none") {
-            Toast.makeText(App.getContext(), "message send to " + address, Toast.LENGTH_LONG).show();
 
-            SmsManager smgr = SmsManager.getDefault();
-            ArrayList<String> messages = smgr.divideMessage(message);
-            smgr.sendMultipartTextMessage(address, null, messages, null, null);
-        }
-        else{
-            Toast.makeText(App.getContext(),"no phone number registered, message couldn't be sent!"
-                    , Toast.LENGTH_LONG).show();
+    /**
+     * send a message to the given phone number
+     * @param message
+     * @param address
+     */
+    public void sendMessage(String message, String address){
+        try {
+                Toast.makeText(App.getContext(), "message send to " + address, Toast.LENGTH_LONG).show();
+
+                SmsManager smgr = SmsManager.getDefault();
+                ArrayList<String> messages = smgr.divideMessage(message);
+                smgr.sendMultipartTextMessage(address, null, messages, null, null);
+        }catch(Exception e){
+            logger.addToLog("Couldn't send message to "+address+" : "+e.getMessage());
         }
     }
+
+    /**
+     * send the same message to every admin
+     * @param message
+     */
     public void sendMessage(String message){
         for(String number : formattedNumbers){
-            sendMessage(message,number);
+            if (number != "none") { //if no number are registered in the preference by the user we will get "none" as value for formated number
+                try {
+                    sendMessage(message, number);
+                }catch(Exception e){
+                    Toast.makeText(App.getContext(),e.getMessage(),Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Toast.makeText(App.getContext(), "no phone number registered, message couldn't be sent!"
+                        , Toast.LENGTH_LONG).show();
+            }
         }
     }
 
@@ -102,12 +123,16 @@ public class SMSManager {
             condAddress+= "address= ? OR ";
             address = address.replaceAll(" ","");
         }
-        condAddress+="1=2)";
+        condAddress+="1=2)";//"1=2" is always false, it is used to cancel the last "OR" of the sql
+                            // request
+
         Cursor cursor = App.getContext().getContentResolver().query(Uri.parse("content://sms/inbox"),
                 new String[]{"_id", "address", "date", "body"}, filter+condAddress,
                         formattedNumbers, null);
+
         App.setLastSMSCheck();
         ArrayList<Map<String,String>> messages = new ArrayList<>();
+
         while (cursor.moveToNext()) {
             Map<String,String> message = new HashMap<>();
             message.put("id",cursor.getString(0));

@@ -1,22 +1,27 @@
-package com.example.lazylapse;
-
-import android.content.Context;
-import android.hardware.Camera;
-import android.hardware.Camera.PictureCallback;
-import android.os.Environment;
-import android.util.Log;
-import android.widget.Toast;
+package com.example.lazylapse.Photo;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class PhotoHandlerRaw implements PictureCallback {
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.hardware.Camera;
+import android.hardware.Camera.PictureCallback;
+import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.example.lazylapse.App;
+import com.example.lazylapse.Photo.Photographer;
+
+public class PhotoHandler implements PictureCallback {
 
     private final Context context;
 
-    public PhotoHandlerRaw(Context context) {
+    public PhotoHandler(Context context) {
         this.context = context;
     }
 
@@ -34,9 +39,13 @@ public class PhotoHandlerRaw implements PictureCallback {
 
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyymmddhhmmss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMMMdd'__'HHmmss");
         String date = dateFormat.format(new Date());
-        String photoFile = "Picture_" + date + ".dng";
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(App.getContext());
+        String nameOfPhone = prefs.getString("nameOfPhone", "'name could not be fetched'");
+
+        String photoFile = date+ "_" +nameOfPhone+ ".jpg";
 
         String filename = pictureFileDir.getPath() + File.separator + photoFile;
 

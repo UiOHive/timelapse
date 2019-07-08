@@ -1,8 +1,9 @@
-package com.example.lazylapse;
+package com.example.lazylapse.Interface;
 
-import android.app.Service;
 import android.content.Context;
 import android.widget.Toast;
+
+import com.example.lazylapse.App;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -24,18 +25,7 @@ public class Logger {
     private Logger(){
         log = "";
         visitors = new ArrayList<ILogVisitor>();
-
-        try{
-            Context ctx = App.getContext();
-            FileInputStream fileInputStream = ctx.openFileInput(logFileName);
-            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-
-            log = bufferedReader.readLine();
-            
-        }catch(Exception e){
-            Toast.makeText(App.getContext(),e.getMessage(),Toast.LENGTH_LONG);
-        }
+        load();
     }
 
     public static Logger getLogger(){
@@ -53,9 +43,8 @@ public class Logger {
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss Z");
         String date = dateFormat.format(new Date());
         log += date+" :: "+msg+" \n";
-        for(ILogVisitor visitor: visitors){
-            visitor.visit(log);
-        }
+
+        updateVisitors();
 
         try {
 
@@ -66,8 +55,25 @@ public class Logger {
             e.printStackTrace();
         }
     }
+    public void load(){
+        try{
+            Context ctx = App.getContext();
+            FileInputStream fileInputStream = ctx.openFileInput(logFileName);
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            inputStreamReader.close();
+            log = bufferedReader.readLine();
+        }catch(Exception e){
+            Toast.makeText(App.getContext(),e.getMessage(),Toast.LENGTH_LONG);
+        }
+    }
 
     public String getLog(){
         return log;
+    }
+    public void updateVisitors(){
+        for(ILogVisitor visitor: visitors){
+            visitor.visit(log);
+        }
     }
 }

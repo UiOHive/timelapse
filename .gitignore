@@ -74,6 +74,9 @@ fastlane/readme.md
 # Version control
 vcs.xml
 
+# Google Credentials
+credentials.json
+
 # lint
 lint/intermediates/
 lint/generated/

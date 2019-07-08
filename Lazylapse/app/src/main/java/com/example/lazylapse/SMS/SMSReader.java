@@ -1,4 +1,4 @@
-package com.example.lazylapse;
+package com.example.lazylapse.SMS;
 
 import android.app.Service;
 import android.content.Intent;

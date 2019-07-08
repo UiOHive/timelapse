@@ -1,4 +1,4 @@
-package com.example.lazylapse;
+package com.example.lazylapse.Interface;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -15,12 +15,13 @@ import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
 import android.text.TextUtils;
 import android.view.MenuItem;
+
+import com.example.lazylapse.R;
 
 import java.util.ArrayList;
 import java.util.List;

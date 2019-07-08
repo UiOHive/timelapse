@@ -1,4 +1,4 @@
-package com.example.lazylapse;
+package com.example.lazylapse.SMS;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -9,8 +9,11 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 import android.widget.Toast;
+
+import com.example.lazylapse.App;
+import com.example.lazylapse.Interface.Controller;
+import com.example.lazylapse.R;
 
 import java.io.File;
 

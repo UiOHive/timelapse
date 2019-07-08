@@ -1,28 +1,24 @@
-package com.example.lazylapse;
+package com.example.lazylapse.Photo;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 
 import android.os.Bundle;
-import android.os.Environment;
-import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import com.example.lazylapse.Constant;
+import com.example.lazylapse.Interface.Logger;
+import com.example.lazylapse.R;
 
-import static android.os.SystemClock.sleep;
+import java.io.IOException;
+import java.util.List;
 
 
 /**
