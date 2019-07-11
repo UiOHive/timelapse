@@ -27,6 +27,10 @@
             android:enabled="true"
             android:exported="true"></service>
         <service
+            android:name=".Drive.PicsUploader"
+            android:enabled="true"
+            android:exported="true"></service>
+        <service
             android:name=".SMS.SMSReader"
             android:enabled="true"
             android:exported="true" />

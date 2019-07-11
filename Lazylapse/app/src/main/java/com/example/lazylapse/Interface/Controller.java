@@ -23,6 +23,7 @@ import com.example.lazylapse.Constant;
 import com.example.lazylapse.Drive.DropboxClient;
 import com.example.lazylapse.Drive.LoginActivityDropbox;
 import com.example.lazylapse.Drive.NewPicsUploader;
+import com.example.lazylapse.Drive.PicsUploader;
 import com.example.lazylapse.SMS.PhoneStatus;
 import com.example.lazylapse.Photo.Photographer;
 import com.example.lazylapse.R;
@@ -74,7 +75,7 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
         cameraButton = findViewById(R.id.buttonTimeLapse);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent i = new Intent(Controller.this, NewPicsUploader.class);
+                Intent i = new Intent(Controller.this, PicsUploader.class);
                 i.putExtra(ACCESS_EXTRA,retrieveAccessToken());
                 startService(i);
             }

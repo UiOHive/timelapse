@@ -55,8 +55,9 @@ public class PhotoHandler implements PictureCallback {
             FileOutputStream fos = new FileOutputStream(pictureFile);
             fos.write(data);
             fos.close();
-            Toast.makeText(context, "New Image saved:" + filename,
-                    Toast.LENGTH_LONG).show();
+            LogPictures.appendLog(filename);
+            //Toast.makeText(context, "New Image saved:" + filename,
+             //       Toast.LENGTH_LONG).show();
         } catch (Exception error) {
             Log.d(Photographer.DEBUG_TAG, "File" + filename + "not saved: "
                     + error.getMessage());
