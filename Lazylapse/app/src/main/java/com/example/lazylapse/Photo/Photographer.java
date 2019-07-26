@@ -16,13 +16,12 @@ import android.widget.Toast;
 import com.example.lazylapse.Constant;
 import com.example.lazylapse.Interface.Logger;
 import com.example.lazylapse.R;
-
 import java.io.IOException;
 import java.util.List;
 
 
 /**
- *  used the code presented in this article: https://www.vogella.com/tutorials/AndroidCamera/article.html
+ *  used the code presented in this article: {@linkplain https://www.vogella.com/tutorials/AndroidCamera/article.html}
  *  had to add a textureView otherwise no preview and then no picture
  *  (preview is needed in camera (1) API in order to take pictures)
  */
@@ -33,13 +32,18 @@ public class Photographer extends Activity {
     private TextureView mTextureView;
     private Logger logger;
 
+    /**
+     * When the activity is initiated by this method, we setup different things like {@link Logger}used
+     * to display and save the steps taken by the activity in order to capture a picture
+     * @param savedInstanceState
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photographer);
 
         logger = Logger.getLogger();
-        logger.addToLog("photographer created");
+        logger.appendLog("photographer created");
 
         Button capture = (Button) findViewById(R.id.capture);
         capture.setOnClickListener(new View.OnClickListener() {
@@ -71,31 +75,35 @@ public class Photographer extends Activity {
         try {
             Boolean instant = this.getIntent().getBooleanExtra(Constant.INSTANT_PICTURE, false);
             if (instant) {
-                logger.addToLog("try to take a picture");
+                logger.appendLog("try to take a picture");
             /*ToneGenerator toneGen1 = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
             toneGen1.startTone(ToneGenerator.TONE_CDMA_PIP,150);*/
                 try {
                     takePicture();
                 } catch (Exception e) {
-                    logger.addToLog(e.getMessage());
+                    logger.appendLog(e.getMessage());
                 }
 
             }
         }
         catch(Exception e){
-            logger.addToLog(e.getMessage());
+            logger.appendLog(e.getMessage());
         }
 
 
     }
 
+    /**
+     * create a SurfaceTexture to display the image(which we actualy do not display in the activity
+     * but that is needed either way), set the size parameter and launch the capture.
+     */
     private void takePicture() {
         try {
             SurfaceTexture surfaceTexture = new SurfaceTexture(10);
             camera.setPreviewTexture(surfaceTexture);
-            logger.addToLog("preview set up");
+            logger.appendLog("preview set up");
         } catch (IOException e) {
-            logger.addToLog(e.getMessage());
+            logger.appendLog(e.getMessage());
         }
         camera.startPreview();
 
@@ -110,7 +118,7 @@ public class Photographer extends Activity {
         }
         params.setPictureSize(size.width, size.height);
 
-        logger.addToLog("taking a picture");
+        logger.appendLog("taking a picture");
         params.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
         camera.setParameters(params);
 
@@ -118,6 +126,10 @@ public class Photographer extends Activity {
 
     }
 
+    /**
+     * functuion used to choose the back camera to take the picture
+     * @return
+     */
     private int findBackFacingCamera() {
         int cameraId = -1;
         // Search for the front facing camera
@@ -133,18 +145,12 @@ public class Photographer extends Activity {
         }
         return cameraId;
     }
-
     @Override
     protected void onPause() {
-        /*if (camera != null) {
-            camera.release();
-            camera = null;
-        }*/
+        camera.release();
+        camera = null;
+        Log.i("PAUSE", "camera released trying to kill activity");
         super.onPause();
+        finish();
     }
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
 }

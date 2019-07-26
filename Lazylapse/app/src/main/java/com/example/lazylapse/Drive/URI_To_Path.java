@@ -17,7 +17,8 @@ public class URI_To_Path {
      *
      * @param context The context.
      * @param uri The Uri to query.
-     * @author paulburke, https://stackoverflow.com/questions/20067508/get-real-path-from-uri-android-kitkat-new-storage-access-framework#20559175
+     *
+     * authored by paulburke, https://stackoverflow.com/questions/20067508/get-real-path-from-uri-android-kitkat-new-storage-access-framework#20559175
      */
     public static String getPath(final Context context, final Uri uri) {
 

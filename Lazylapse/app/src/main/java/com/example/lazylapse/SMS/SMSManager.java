@@ -15,7 +15,6 @@ import com.example.lazylapse.Interface.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
 import static android.telephony.PhoneNumberUtils.formatNumber;
 
 public class SMSManager {
@@ -23,36 +22,35 @@ public class SMSManager {
     private String phoneNumbers;
     private Logger logger;
     private String[] formattedNumbers;
+    boolean ready = false;
 
     private SMSManager() {
         logger = Logger.getLogger();
 
         phoneNumbers = "none";
 
-        boolean ready = false;
-
-
         TelephonyManager telMgr = (TelephonyManager) App.getContext().getSystemService(Context.TELEPHONY_SERVICE);
         int simState = telMgr.getSimState();
+
         switch (simState) {
             case TelephonyManager.SIM_STATE_ABSENT:
-                logger.addToLog("misssing the SIM card");
+                logger.appendLog("misssing the SIM card");
                 break;
             case TelephonyManager.SIM_STATE_NETWORK_LOCKED:
-                logger.addToLog("unlock the SIM card plz");
+                logger.appendLog("unlock the SIM card plz");
                 break;
             case TelephonyManager.SIM_STATE_PIN_REQUIRED:
-                logger.addToLog("unlock the SIM card plz");
+                logger.appendLog("unlock the SIM card plz");
                 break;
             case TelephonyManager.SIM_STATE_PUK_REQUIRED:
-                logger.addToLog("unlock the SIM card plz");
+                logger.appendLog("unlock the SIM card plz");
                 break;
             case TelephonyManager.SIM_STATE_READY:
-                logger.addToLog("SIM card ready");
+                logger.appendLog("SIM card ready");
                 ready = true;
                 break;
             case TelephonyManager.SIM_STATE_UNKNOWN:
-                logger.addToLog("SIM state unknown, try again later");
+                logger.appendLog("SIM state unknown, try again later");
                 break;
         }
         if(ready) {
@@ -60,9 +58,10 @@ public class SMSManager {
 
             String countryCodeValue = telMgr.getNetworkCountryIso();
 
-            phoneNumbers = preferences.getString("phoneNumber", "none");
-
-            formattedNumbers = phoneNumbers.split(";");
+            phoneNumbers = preferences.getString("phoneNumber", null);
+            if(phoneNumbers!=null) {
+                formattedNumbers = phoneNumbers.split(";");
+            }
         }
     }
 
@@ -80,6 +79,7 @@ public class SMSManager {
      * @param address
      */
     public void sendMessage(String message, String address){
+        if(ready){
         try {
                 Toast.makeText(App.getContext(), "message send to " + address, Toast.LENGTH_LONG).show();
 
@@ -87,7 +87,8 @@ public class SMSManager {
                 ArrayList<String> messages = smgr.divideMessage(message);
                 smgr.sendMultipartTextMessage(address, null, messages, null, null);
         }catch(Exception e){
-            logger.addToLog("Couldn't send message to "+address+" : "+e.getMessage());
+            logger.appendLog("Couldn't send message to "+address+" : "+e.getMessage());
+        }
         }
     }
 
@@ -96,16 +97,20 @@ public class SMSManager {
      * @param message
      */
     public void sendMessage(String message){
-        for(String number : formattedNumbers){
-            if (number != "none") { //if no number are registered in the preference by the user we will get "none" as value for formated number
-                try {
-                    sendMessage(message, number);
-                }catch(Exception e){
-                    Toast.makeText(App.getContext(),e.getMessage(),Toast.LENGTH_LONG).show();
+        if(ready){
+            if(formattedNumbers!=null){
+            for(String number : formattedNumbers){
+                if (number != null) { //if no number are registered in the preference by the user we will get "none" as value for formated number
+                    try {
+                        sendMessage(message, number);
+                    }catch(Exception e){
+                        Toast.makeText(App.getContext(),e.getMessage(),Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    Toast.makeText(App.getContext(), "no phone number registered, message couldn't be sent!"
+                            , Toast.LENGTH_LONG).show();
+                    }
                 }
-            } else {
-                Toast.makeText(App.getContext(), "no phone number registered, message couldn't be sent!"
-                        , Toast.LENGTH_LONG).show();
             }
         }
     }

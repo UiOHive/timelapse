@@ -23,10 +23,6 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <service
-            android:name=".Drive.NewPicsUploader"
-            android:enabled="true"
-            android:exported="true"></service>
-        <service
             android:name=".Drive.PicsUploader"
             android:enabled="true"
             android:exported="true"></service>

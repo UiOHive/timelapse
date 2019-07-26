@@ -17,6 +17,9 @@ import android.widget.Toast;
 import com.example.lazylapse.App;
 import com.example.lazylapse.Photo.Photographer;
 
+/**
+ * Handles picture saving after they are taken (see {@link Photographer}).
+ */
 public class PhotoHandler implements PictureCallback {
 
     private final Context context;
@@ -25,6 +28,14 @@ public class PhotoHandler implements PictureCallback {
         this.context = context;
     }
 
+    /**
+     * Called when the pictures is taken in {@link Photographer}, it handles saving the picture file
+     * naming it based on the time of capture and add it to two logs {@link Logger} to display the
+     * succes on the log and {@link LogPictures} to put it on the list of file to upload next time
+     * we send pictures to dropbox with {@link PicsUploader}.
+     * @param data
+     * @param camera
+     */
     @Override
     public void onPictureTaken(byte[] data, Camera camera) {
 
@@ -39,7 +50,7 @@ public class PhotoHandler implements PictureCallback {
 
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMMMdd'__'HHmmss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd'__'HHmmss");
         String date = dateFormat.format(new Date());
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(App.getContext());
@@ -55,17 +66,21 @@ public class PhotoHandler implements PictureCallback {
             FileOutputStream fos = new FileOutputStream(pictureFile);
             fos.write(data);
             fos.close();
-            LogPictures.appendLog(filename);
+            (new LogPictures()).appendLog(filename);
             //Toast.makeText(context, "New Image saved:" + filename,
              //       Toast.LENGTH_LONG).show();
         } catch (Exception error) {
             Log.d(Photographer.DEBUG_TAG, "File" + filename + "not saved: "
                     + error.getMessage());
-            Toast.makeText(context, "Image could not be saved.",
+            Toast.makeText(context, "Image could not be saved",
                     Toast.LENGTH_LONG).show();
         }
     }
 
+    /**
+     * Get the directory in which the picture will be saved (local storage -> pictures -> LazyLapse)
+     * @return File directory in which the picture will be saved
+     */
     private File getDir() {
         File sdDir = Environment
                 .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);

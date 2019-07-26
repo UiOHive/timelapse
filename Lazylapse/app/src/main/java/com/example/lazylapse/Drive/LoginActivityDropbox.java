@@ -16,7 +16,19 @@ import com.example.lazylapse.App;
 import com.example.lazylapse.Interface.Controller;
 import com.example.lazylapse.R;
 
+/**
+ * Activity prompted when starting the app without access token saved in sharedPreference in order
+ * to obtain one.
+ *
+ * authored by Valdio Veliu on https://www.sitepoint.com/adding-the-dropbox-api-to-an-android-app/
+ */
 public class LoginActivityDropbox extends AppCompatActivity {
+    /**
+     * Called when the activity is started, and display the layout, and set the onClick method of
+     * the button in the activty to open a login window either on navigator or the local dropbox app
+     * if installed (for some reason it only works with the app installed).
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +43,12 @@ public class LoginActivityDropbox extends AppCompatActivity {
         });
     }
 
+    /**
+     * onResume is called when we return the activity to the foreground after having it in the
+     * background (when you go back to the app after authentication's complete). This will call
+     * {@link #getAccessToken()}, which will, if the user is authenticated, store the token in
+     * shared preferences.
+     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -41,6 +59,9 @@ public class LoginActivityDropbox extends AppCompatActivity {
         }
     }
 
+    /**
+     * if the user is authenticated, store the token in shared preferences.
+     */
     public void getAccessToken() {
         String accessToken = Auth.getOAuth2Token(); //generate Access Token
         Toast.makeText(this,accessToken,Toast.LENGTH_LONG).show();

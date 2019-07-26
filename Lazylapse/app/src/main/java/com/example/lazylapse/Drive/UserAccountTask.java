@@ -5,7 +5,15 @@ import android.os.AsyncTask;
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
 import com.dropbox.core.v2.users.FullAccount;
+import com.example.lazylapse.Interface.Controller;
 
+/**
+ * used to retrieve the dropbox account of the authenticated user to get information such as email,
+ * username and such. Maybe more cosmetic than useful, still helps when debugging and to know if
+ * authentication has worked. Used in {@link Controller#getUserAccount()}
+ *
+ * authored by Valdio Veliu on https://www.sitepoint.com/adding-the-dropbox-api-to-an-android-app/
+ */
 public class UserAccountTask extends AsyncTask<Void, Void, FullAccount> {
 
         private DbxClientV2 dbxClient;

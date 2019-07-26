@@ -1,14 +1,18 @@
 package com.example.lazylapse.Interface;
 
+import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
@@ -22,7 +26,6 @@ import com.example.lazylapse.App;
 import com.example.lazylapse.Constant;
 import com.example.lazylapse.Drive.DropboxClient;
 import com.example.lazylapse.Drive.LoginActivityDropbox;
-import com.example.lazylapse.Drive.NewPicsUploader;
 import com.example.lazylapse.Drive.PicsUploader;
 import com.example.lazylapse.SMS.PhoneStatus;
 import com.example.lazylapse.Photo.Photographer;
@@ -31,13 +34,20 @@ import com.example.lazylapse.SMS.SMSManager;
 import com.example.lazylapse.Drive.URI_To_Path;
 import com.example.lazylapse.Drive.UploadTask;
 import com.example.lazylapse.Drive.UserAccountTask;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.io.File;
 
-
+/**
+ * Activity launched when the app start, it allows the user to launch the timelapse and to set
+ * parameters. It also display a log that keep track of every action taken by the app, the same that
+ * will be uploaded on dropbox.
+ */
 public class Controller extends AppCompatActivity implements ILogVisitor {
     private static final int REQUEST_CODE_SIGN_IN = 2 ;
     public static final String ACCESS_EXTRA = "accessExtra";
+    private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 43;
+    private static final int REQUEST_SEND_SMS = 44 ;
     private ImageButton settingsButton;
     private ImageButton cameraButton;
     private Photographer photographer;
@@ -50,8 +60,7 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
 
     private static final int IMAGE_REQUEST_CODE = 101;
     private String ACCESS_TOKEN;
-
-
+    private int REQUEST_CAMERA = 42;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,9 +84,12 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
         cameraButton = findViewById(R.id.buttonTimeLapse);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent i = new Intent(Controller.this, PicsUploader.class);
-                i.putExtra(ACCESS_EXTRA,retrieveAccessToken());
-                startService(i);
+                Intent intentDropbox = new Intent(Controller.this, PicsUploader.class);
+                intentDropbox.putExtra(ACCESS_EXTRA,retrieveAccessToken());
+                startService(intentDropbox);
+                /*Intent i = new Intent("com.airplanemode.ON");
+                sendBroadcast(i);*/
+
             }
         });
         timeLapseButton = findViewById(R.id.buttonLaunchTimeLapse);
@@ -86,14 +98,16 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
                 try {
                     Intent intentCamera = new Intent(Controller.this, Photographer.class);
                     intentCamera.putExtra(Constant.INSTANT_PICTURE, true);
+                    intentCamera.putExtra("Activity",true);
 
-                    Intent intentDropbox = new Intent(Controller.this, NewPicsUploader.class);
+                    Intent intentDropbox = new Intent(Controller.this, PicsUploader.class);
+                    intentDropbox.putExtra(ACCESS_EXTRA,retrieveAccessToken());
 
                     Intent intentPhoneStatus = new Intent(Controller.this, PhoneStatus.class);
 
                     PendingIntent previousIntentCamera = PendingIntent.getActivity(Controller.this, 1, intentCamera, PendingIntent.FLAG_NO_CREATE);
-                    PendingIntent previousIntentDropbox = PendingIntent.getActivity(Controller.this, 1, intentDropbox, PendingIntent.FLAG_NO_CREATE);
-                    PendingIntent previousIntentPhoneStatus = PendingIntent.getActivity(Controller.this, 1, intentPhoneStatus, PendingIntent.FLAG_NO_CREATE);
+                    PendingIntent previousIntentDropbox = PendingIntent.getService(Controller.this, 1, intentDropbox, PendingIntent.FLAG_NO_CREATE);
+                    PendingIntent previousIntentPhoneStatus = PendingIntent.getService(Controller.this, 1, intentPhoneStatus, PendingIntent.FLAG_NO_CREATE);
 
                     if (null != previousIntentCamera) {
                         alarmMgr.cancel(previousIntentCamera);
@@ -105,12 +119,12 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
                         alarmMgr.cancel(previousIntentPhoneStatus);
                         previousIntentPhoneStatus.cancel();
 
-                        logger.addToLog("Time lapse ended");
+                        logger.appendLog("Time lapse ended");
                     } else {
 
-                        setUpAlarmIntent("pictureInterval", intentCamera);
-                        setUpAlarmIntent("dropboxInterval", intentDropbox);
-                        setUpAlarmIntent("phoneStatusInterval", intentPhoneStatus);
+                        setUpAlarmIntent("pictureInterval",0, intentCamera);
+                        setUpAlarmIntent("dropboxInterval",1*60*1000, intentDropbox);
+                        setUpAlarmIntent("phoneStatusInterval",0, intentPhoneStatus);
                         String nameOfPhone = prefs.getString("nameOfPhone", "'name could not be fetched'");
 
                         smsManager.sendMessage("Time Lapse Started on phone " + nameOfPhone);
@@ -144,14 +158,26 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
         }
 
         ACCESS_TOKEN = retrieveAccessToken();
+
+        askPermission(Manifest.permission.CAMERA,REQUEST_CAMERA,R.string.permission_camera_rationale);
+        askPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE,REQUEST_WRITE_EXTERNAL_STORAGE,R.string.permission_storage_rationale);
+        askPermission(Manifest.permission.SEND_SMS,REQUEST_SEND_SMS,R.string.permission_sms_rationale);
+
         getUserAccount();
     }
 
+    /**
+     * this is called by Logger whenever a new line is append to the log .
+     * @param log String, the whole log (will be reset on a monthly basis)
+     */
     @Override
     public void visit(String log) {
         textLog.setText(log);
     }
 
+    /**
+     * add to {@link Logger } the authenticated account details retrieved with {@link UserAccountTask}
+     */
     protected void getUserAccount() {
         if (ACCESS_TOKEN == null)return;
         new UserAccountTask(DropboxClient.getClient(ACCESS_TOKEN), new UserAccountTask.TaskDelegate() {
@@ -161,7 +187,7 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
                 Log.d("User", account.getEmail());
                 Log.d("User", account.getName().getDisplayName());
                 Log.d("User", account.getAccountType().name());
-                logger.addToLog(account.getName().getDisplayName()+" "+account.getEmail());
+                logger.appendLog(account.getName().getDisplayName()+" "+account.getEmail());
             }
             @Override
             public void onError(Exception error) {
@@ -169,12 +195,21 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
             }
         }).execute();
     }
+
+    /**
+     * check if the user is authenticated on dropbox
+     * @return boolean, true if authenticated, false if not.
+     */
     private boolean tokenExists() {
         SharedPreferences prefs = getSharedPreferences("com.example.valdio.dropboxintegration", Context.MODE_PRIVATE);
         String accessToken = prefs.getString("access-token", null);
         return accessToken != null;
     }
 
+    /**
+     * Retrieve the access token from the shared preferences
+     * @return String, Access token
+     */
     private String retrieveAccessToken() {
         //check if ACCESS_TOKEN is stored on previous app launches
         SharedPreferences prefs = getSharedPreferences("com.example.valdio.dropboxintegration", Context.MODE_PRIVATE);
@@ -215,15 +250,25 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
             }
         }
     }
-    private void setUpAlarmIntent(String intervalKey, Intent intent){
+
+    /**
+     * Used to set action to be executed at given interval (retrieved from user preference)
+     * @param intervalKey String key to the interval stored in shared preference (user preference)
+     * @param intent the intentent coresponding to the activity to launch
+     */
+    public void setUpAlarmIntent(String intervalKey, int delay, Intent intent){
 
         int interval = Integer.valueOf(prefs.getString(intervalKey, "30")); //the interval between pictures in minutes
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(Controller.this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
+        PendingIntent pendingIntent = null;
+        if(intent.getBooleanExtra("Activity", false)) {
+            pendingIntent = PendingIntent.getActivity(Controller.this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }else{
+            pendingIntent = PendingIntent.getService(Controller.this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        }
         alarmMgr.cancel(pendingIntent);
         alarmMgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime() + interval * 1000,
+                SystemClock.elapsedRealtime() + delay,
                 interval * 60 * 1000, pendingIntent);
     }
 
@@ -232,6 +277,50 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
         super.onResume();
         logger.load();
         logger.updateVisitors();
+    }
+
+    /**
+     * ask permissions to user with popup at run time, if denied, explains why permission is
+     * required and then ask once again.
+     * @param permission permission asked to user
+     * @param requestCode request code for eventual post treatment of the result
+     * @param explanations explaination of why the permission is needed
+     */
+    private void askPermission(String permission, int requestCode, int explanations){
+        View mLayout = findViewById(R.id.layoutMain);
+        if (ContextCompat.checkSelfPermission(this,
+                permission)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Permission is not granted
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    permission)) {
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                Snackbar.make(mLayout, explanations,
+                        Snackbar.LENGTH_INDEFINITE)
+                        .setAction(R.string.ok, new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                ActivityCompat.requestPermissions(Controller.this,
+                                        new String[]{permission},
+                                        requestCode);
+                            }
+                        })
+                        .show();
+            } else {
+                // No explanation needed; request the permission
+                ActivityCompat.requestPermissions(this,
+                        new String[]{permission},
+                        requestCode);
+
+
+            }
+        } else {
+            // Permission has already been granted
+        }
     }
 
 

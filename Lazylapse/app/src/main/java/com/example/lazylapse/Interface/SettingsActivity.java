@@ -39,6 +39,11 @@ import java.util.prefs.PreferenceChangeListener;
  * API Guide</a> for more information on developing a Settings UI.
  */
 public class SettingsActivity extends PreferenceActivity {
+    /**
+     * Add extra parameters on top of the one that are stored in {@link R.xml.preferences}, it allows
+     * the setting to adapt to the phone the app is installed on
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

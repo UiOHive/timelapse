@@ -34,7 +34,7 @@ public class App extends Application {
     }
 
     /**
-     * This is no classic setter, rather that setting the date to a given date, it uses current date
+     * This is not a classic setter, rather that setting the date to a given date, it uses current date
      * as value to.
      */
     public static void setLastSMSCheck() {

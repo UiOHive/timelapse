@@ -6,6 +6,7 @@ import android.widget.Toast;
 
 import com.example.lazylapse.App;
 import com.example.lazylapse.Interface.Logger;
+import com.example.lazylapse.LogFile;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -20,111 +21,27 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 
-public class LogPictures {
-
-    private static final String pathToLog = "pic_to_upload.txt";
-
-    protected static void addPictureToBeUploaded(String path){
-        try {
-            ArrayList<String> other = getFilesToUpload();
-            if(other == null){
-                other = new ArrayList<>();
-            }
-            other.add(path+"\n");
-
-            String files = "";
-            for(String file: other){
-                files+=file;
-            }
-            File logPicFile = new File(getDir(),pathToLog);
-            if(!logPicFile.exists()){
-                try{
-                    logPicFile.createNewFile();
-                }catch(Exception e){
-                    Logger.getLogger().addToLog(e.getMessage());
-                }
-            }
-            FileOutputStream outputStream = (FileOutputStream)
-                    new FileOutputStream(logPicFile);
-
-            OutputStreamWriter outputWriter = new OutputStreamWriter(outputStream);
-            outputWriter.write(files);
-            Logger.getLogger().addToLog("wrote "+files+" to logpic");
-
-        } catch (Exception e) {
-            Toast.makeText(App.getContext(),e.getMessage(),Toast.LENGTH_LONG).show();
-        }
-    }
-    public static ArrayList<String> getFilesToUpload(){
-        try {
-            Context ctx = App.getContext();
-            File logPicFile = new File(getDir(), pathToLog);
-            if (!logPicFile.exists()) {
-                return null;
-            }
-            FileReader fin = null;
-            BufferedReader bin = null;
-            ArrayList<String> log = new ArrayList<>();
-            try {
-                fin = new FileReader(logPicFile);
-                bin = new BufferedReader(fin);
-
-                String line;
-                while ((line = bin.readLine()) != null) {
-                    log.add(line);
-                }
-            } finally {
-                fin.close();
-                bin.close();
-            }
-            Toast.makeText(App.getContext(), log.toString(), Toast.LENGTH_LONG).show();
-
-            return log;
-        }catch(Exception e){
-            Toast.makeText(App.getContext(),e.getMessage(),Toast.LENGTH_LONG).show();
-            return null;
-        }
+public class LogPictures extends LogFile {
+    /**
+     * Constructor only setting the path to the log file for {@link LogFile}'s saving and reading
+     * methods.
+     */
+    public void LogPictures(){
+        pathToLog = "pic_to_upload.txt";
     }
 
-    public static void appendLog(String text)
-    {
-        File logFile = new File(getDir(),pathToLog);
-        if (!logFile.exists())
-        {
-            try
-            {
-                logFile.createNewFile();
-            }
-            catch (IOException e)
-            {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        try
-        {
-            //BufferedWriter for performance, true to set append to file flag
-            BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
-            buf.append(text);
-            buf.newLine();
-            buf.close();
-        }
-        catch (IOException e)
-        {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    /**
+     * instead of using {@link LogFile#getLogContent()} directly to get paths to the pictures that
+     * need uploading, this method allow to get a String[] which is easier to iterate on.
+     *
+     * @return String[] containing the path to pictures taken by the app and that haven't been
+     * uploaded yet.
+     */
+    public String[] getFilesToUpload(){
+        String rawLog = getLogContent();
+        String[] filesToUpload = rawLog.split("\n");
+        clear();
+        return filesToUpload;
     }
 
-    public static void clear() {
-        File file = new File(new File(getDir(),pathToLog).getPath());
-        boolean deleted = file.delete();
-    }
-    private static File getDir() {
-        File sdDir = App.getContext().getFilesDir();
-        if(!sdDir.exists()){
-            sdDir.mkdirs();
-        }
-        return sdDir;
-    }
 }
