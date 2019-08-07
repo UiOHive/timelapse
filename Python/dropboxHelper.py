@@ -45,7 +45,7 @@ def listLocalPicturesFile(ext,path):
     pictureFiles = []
     
     for f in files:
-        if os.path.isfile(os.path.join(path,f)) and f.endwith(ext):
+        if os.path.isfile(os.path.join(path,f)) and f.path.endwith(ext):
             pictureFiles.append(f)
 
     return pictureFiles

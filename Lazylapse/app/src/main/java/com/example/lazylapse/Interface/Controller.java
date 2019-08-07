@@ -25,6 +25,7 @@ import com.dropbox.core.v2.users.FullAccount;
 import com.example.lazylapse.App;
 import com.example.lazylapse.Constant;
 import com.example.lazylapse.Drive.DropboxClient;
+import com.example.lazylapse.Drive.LogUploader;
 import com.example.lazylapse.Drive.LoginActivityDropbox;
 import com.example.lazylapse.Drive.PicsUploader;
 import com.example.lazylapse.SMS.PhoneStatus;
@@ -84,7 +85,7 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
         cameraButton = findViewById(R.id.buttonTimeLapse);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intentDropbox = new Intent(Controller.this, PicsUploader.class);
+                Intent intentDropbox = new Intent(Controller.this, LogUploader.class);
                 intentDropbox.putExtra(ACCESS_EXTRA,retrieveAccessToken());
                 startService(intentDropbox);
                 /*Intent i = new Intent("com.airplanemode.ON");
@@ -103,10 +104,14 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
                     Intent intentDropbox = new Intent(Controller.this, PicsUploader.class);
                     intentDropbox.putExtra(ACCESS_EXTRA,retrieveAccessToken());
 
+                    Intent intentLogDropbox = new Intent(Controller.this, LogUploader.class);
+                    intentLogDropbox.putExtra(ACCESS_EXTRA,retrieveAccessToken());
+
                     Intent intentPhoneStatus = new Intent(Controller.this, PhoneStatus.class);
 
                     PendingIntent previousIntentCamera = PendingIntent.getActivity(Controller.this, 1, intentCamera, PendingIntent.FLAG_NO_CREATE);
                     PendingIntent previousIntentDropbox = PendingIntent.getService(Controller.this, 1, intentDropbox, PendingIntent.FLAG_NO_CREATE);
+                    PendingIntent previousIntentLogDropbox = PendingIntent.getService(Controller.this, 1, intentLogDropbox, PendingIntent.FLAG_NO_CREATE);
                     PendingIntent previousIntentPhoneStatus = PendingIntent.getService(Controller.this, 1, intentPhoneStatus, PendingIntent.FLAG_NO_CREATE);
 
                     if (null != previousIntentCamera) {
@@ -115,6 +120,9 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
 
                         alarmMgr.cancel(previousIntentDropbox);
                         previousIntentDropbox.cancel();
+
+                        alarmMgr.cancel(previousIntentLogDropbox);
+                        previousIntentLogDropbox.cancel();
 
                         alarmMgr.cancel(previousIntentPhoneStatus);
                         previousIntentPhoneStatus.cancel();
@@ -125,13 +133,12 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
                         setUpAlarmIntent("pictureInterval",0, intentCamera);
                         setUpAlarmIntent("dropboxInterval",1*60*1000, intentDropbox);
                         setUpAlarmIntent("phoneStatusInterval",0, intentPhoneStatus);
+                        setUpAlarmIntent("LogUploaderInterval",0, intentLogDropbox);
                         String nameOfPhone = prefs.getString("nameOfPhone", "'name could not be fetched'");
 
                         smsManager.sendMessage("Time Lapse Started on phone " + nameOfPhone);
 
-
-
-
+                        logger.appendLog("Time lapse started");
                     }
                 } catch (Exception e) {
                     Toast.makeText(App.getContext(), e.getMessage(), Toast.LENGTH_LONG).show();
@@ -210,7 +217,7 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
      * Retrieve the access token from the shared preferences
      * @return String, Access token
      */
-    private String retrieveAccessToken() {
+    public String retrieveAccessToken() {
         //check if ACCESS_TOKEN is stored on previous app launches
         SharedPreferences prefs = getSharedPreferences("com.example.valdio.dropboxintegration", Context.MODE_PRIVATE);
         String accessToken = prefs.getString("access-token", null);
@@ -267,9 +274,15 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
             pendingIntent = PendingIntent.getService(Controller.this, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         }
         alarmMgr.cancel(pendingIntent);
+        /*alarmMgr.setExactAndAllowWhileIdle(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime()+(delay+interval) * 60 * 1000,pendingIntent);*/
+
         alarmMgr.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
                 SystemClock.elapsedRealtime() + delay,
                 interval * 60 * 1000, pendingIntent);
+
+        // we do not use setRepeating as it seems it doesn't get the phone out of sleep mode,
+        // which mess with network among other thing
     }
 
     @Override

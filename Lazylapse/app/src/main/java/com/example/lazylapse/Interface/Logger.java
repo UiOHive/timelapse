@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -105,13 +106,19 @@ public class Logger extends LogFile {
         return pathToLog;
     }
     /**
-     * Get path to log, change it each month, in order to upload it
+     * Get path to last month log, change it each month, in order to upload it
      * @return the path
      */
     public String getPreviousPathToLog(){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMM");
-        String date = dateFormat.format(new Date());
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.MONTH,-1);
+
+        String date = dateFormat.format(calendar);
         pathToLog = "LazyLog_" + date + ".txt";
+
         return pathToLog;
     }
 

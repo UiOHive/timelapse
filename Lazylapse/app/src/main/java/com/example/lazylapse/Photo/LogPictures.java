@@ -39,8 +39,11 @@ public class LogPictures extends LogFile {
      */
     public String[] getFilesToUpload(){
         String rawLog = getLogContent();
-        String[] filesToUpload = rawLog.split("\n");
-        clear();
+        String[] filesToUpload = null;
+        if(rawLog!=null){
+            filesToUpload = rawLog.split("\n");
+            clear();
+        }
         return filesToUpload;
     }
 

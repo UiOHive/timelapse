@@ -9,15 +9,17 @@ import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Binder;
 import android.os.IBinder;
+import android.os.StatFs;
 import android.widget.Toast;
 
 import com.example.lazylapse.App;
 import com.example.lazylapse.Interface.Controller;
+import com.example.lazylapse.PendingFunctionality;
 import com.example.lazylapse.R;
 
 import java.io.File;
 
-public class PhoneStatus extends Service {
+public class PhoneStatus extends Service implements PendingFunctionality {
     private NotificationManager mNM;
 
     // Unique Identification Number for the Notification.
@@ -57,14 +59,17 @@ public class PhoneStatus extends Service {
 
         message += "battery level = "+batteryPct+"% \n";
 
-        long freeBytesInternal = new File(getFilesDir().getAbsoluteFile().toString()).getFreeSpace();
+        long freeBytesInternal = new StatFs(getFilesDir().getAbsoluteFile().toString()).getAvailableBytes();
 
         message +="Free space in internal memory = "+freeBytesInternal/8/1024+ " ko";
 
         String address = intent.getStringExtra("address");
         if(address!=null) {
             smsManager.sendMessage(message, address);
-        }else{
+        }else{// trigger by a pending intent that need to be repeated so we prepare the repetition and set it before continuing
+            /*Intent i =  new Intent(PhoneStatus.this, PhoneStatus.class);
+            PendingIntent pi = PendingIntent.getService( this,1,i,PendingIntent.FLAG_NO_CREATE);
+            repeat(pi,"phoneStatusInterval");*/
             smsManager.sendMessage(message);
         }
         return flags;

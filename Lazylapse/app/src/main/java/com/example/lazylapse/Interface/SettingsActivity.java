@@ -47,23 +47,7 @@ public class SettingsActivity extends PreferenceActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        CameraManager cameras = (CameraManager) getSystemService(CAMERA_SERVICE); /*used to obtain cameras and their characteristics*/
-        String[] listCameras;
-        String[] listIdCameras;
-        try { /* try/catch needed in the catch we display error as value in order to indicate the issue to the user (this shoudn't happen ever though*/
-            listIdCameras = cameras.getCameraIdList();
-            listCameras = new String[listIdCameras.length];
-            for (String cameraId : listIdCameras) {
-                listCameras[Integer.valueOf(cameraId)] = "sensor " + cameraId + ":" + cameras.getCameraCharacteristics(cameraId).get(CameraCharacteristics.LENS_FACING);
-            }
-        } catch (CameraAccessException e) {
-            listIdCameras = new String[]{"1"};
-            listCameras = new String[]{"error"};
-        }
-
         addPreferencesFromResource(R.xml.preferences);
-        ListPreference listPref = (ListPreference) findPreference("cameraId");
-        listPref.setEntryValues(listIdCameras);
-        listPref.setEntries(listCameras);
+
     }
 }

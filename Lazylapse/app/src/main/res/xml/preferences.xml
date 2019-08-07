@@ -11,6 +11,10 @@
         android:key="dropboxInterval"
         android:defaultValue="30"
         android:summary="Please provide the interval desired in minutes"></EditTextPreference>
+    <EditTextPreference android:title="Dropbox upload interval of the log"
+        android:key="LogUploaderInterval"
+        android:defaultValue="30"
+        android:summary="Please provide the interval desired in minutes"></EditTextPreference>
     <EditTextPreference android:title="Phone SMS update interval"
         android:key="phoneStatusInterval"
         android:defaultValue="30"
@@ -21,17 +25,12 @@
         android:summary="Name use to identify the phone to name it in picture file name and messages"></EditTextPreference>
     <CheckBoxPreference android:title="Application Updates"
         android:defaultValue="false"
-        android:summary="This option if selected will allow the application to check for latest versions."
+        android:summary="This option if selected will allow the application to check for latest
+        versions."
         android:key="applicationUpdates" />
-    <ListPreference     android:title="Download Details"
-        android:summary="Select the kind of data that you would like to download"
-        android:key="downloadType"
-        android:defaultValue="1"
-        android:entries="@array/listArray"
-        android:entryValues="@array/listValues" />
-    <ListPreference     android:title="Camera to be used"
-        android:summary="Select the Camera you want to use for the time-lapse"
-        android:key="cameraId"
+    <ListPreference     android:title="Focus mode"
+        android:summary="Select the focus mode you want to use for the time-lapse (some might give poor result)"
+        android:key="focusMode"
         android:defaultValue="1"
         android:entries="@array/listArray"
         android:entryValues="@array/listValues" />

@@ -1,12 +1,18 @@
 package com.example.lazylapse.Photo;
 
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
 import android.hardware.Camera.CameraInfo;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.TextureView;
 import android.view.View;
@@ -15,7 +21,10 @@ import android.widget.Toast;
 
 import com.example.lazylapse.Constant;
 import com.example.lazylapse.Interface.Logger;
+import com.example.lazylapse.PendingFunctionality;
 import com.example.lazylapse.R;
+import com.example.lazylapse.SMS.PhoneStatus;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -25,7 +34,7 @@ import java.util.List;
  *  had to add a textureView otherwise no preview and then no picture
  *  (preview is needed in camera (1) API in order to take pictures)
  */
-public class Photographer extends Activity {
+public class Photographer extends Activity implements PendingFunctionality {
     protected final static String DEBUG_TAG = "MakePhotoActivity";
     private Camera camera;
     private int cameraId = 0;
@@ -41,6 +50,10 @@ public class Photographer extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photographer);
+
+        /*Intent i =  new Intent(Photographer.this, PhoneStatus.class);
+        PendingIntent pi = PendingIntent.getService(this,1,i,PendingIntent.FLAG_NO_CREATE);
+        repeat(pi,"pictureInterval");*/
 
         logger = Logger.getLogger();
         logger.appendLog("photographer created");
@@ -67,8 +80,6 @@ public class Photographer extends Activity {
                         Toast.LENGTH_LONG).show();
             } else {
                 camera = Camera.open(cameraId);
-
-
             }
         }
 
@@ -119,16 +130,25 @@ public class Photographer extends Activity {
         params.setPictureSize(size.width, size.height);
 
         logger.appendLog("taking a picture");
-        params.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        int focusMode = Integer.valueOf(prefs.getString("focusMode", "1"));
+        switch(focusMode){
+            case 1:
+                params.setFocusMode(Camera.Parameters.FOCUS_MODE_EDOF);
+            case 2:
+                params.setFocusMode(Camera.Parameters.FOCUS_MODE_INFINITY);
+            case 3:
+                params.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+        }
         camera.setParameters(params);
 
         camera.takePicture(null, null, new PhotoHandler(getApplicationContext()));
-
     }
 
     /**
      * functuion used to choose the back camera to take the picture
-     * @return
+     * @return camera id
      */
     private int findBackFacingCamera() {
         int cameraId = -1;
@@ -146,11 +166,11 @@ public class Photographer extends Activity {
         return cameraId;
     }
     @Override
-    protected void onPause() {
+    protected void onDestroy() {
         camera.release();
         camera = null;
         Log.i("PAUSE", "camera released trying to kill activity");
-        super.onPause();
+        super.onDestroy();
         finish();
     }
 }

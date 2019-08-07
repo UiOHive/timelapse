@@ -55,12 +55,20 @@ public class LogUploader extends Service {
 
             if (accessToken != null) { //check if we're authorized and identified to upload
 
-                String lastPicture = prefs.getString("lastPictureUploaded", "none");
-
                 File logFile = new File(Logger.getDir(), logger.getPathToLog());
                 if (logFile.exists()) {
                     try {
                         new UploadTask(DropboxClient.getClient(accessToken), logFile, getApplicationContext()).execute();
+                    } catch (Exception e) {
+                        logger.appendLog(e.getMessage());
+                    }
+                }else{
+                    logger.appendLog("failed to locate log file");
+                }
+                File previousLogFile = new File(Logger.getDir(), logger.getPreviousPathToLog());
+                if (previousLogFile.exists()) {
+                    try {
+                        new UploadTask(DropboxClient.getClient(accessToken), previousLogFile, getApplicationContext()).execute();
                     } catch (Exception e) {
                         logger.appendLog(e.getMessage());
                     }

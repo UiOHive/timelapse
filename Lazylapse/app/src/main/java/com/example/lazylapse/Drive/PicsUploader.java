@@ -1,5 +1,6 @@
 package com.example.lazylapse.Drive;
 
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,12 +11,14 @@ import android.widget.Toast;
 
 import com.example.lazylapse.Interface.Controller;
 import com.example.lazylapse.Interface.Logger;
+import com.example.lazylapse.PendingFunctionality;
 import com.example.lazylapse.Photo.LogPictures;
+import com.example.lazylapse.SMS.PhoneStatus;
 
 import java.io.File;
 import java.util.ArrayList;
 
-public class PicsUploader extends Service {
+public class PicsUploader extends Service implements PendingFunctionality {
     public PicsUploader() {
     }
 
@@ -46,14 +49,21 @@ public class PicsUploader extends Service {
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+
         try{
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
         String accessToken = intent.getStringExtra(Controller.ACCESS_EXTRA);
+
+
+        /*Intent i =  new Intent(PicsUploader.this, PhoneStatus.class);
+        i.putExtra(Controller.ACCESS_EXTRA, accessToken);
+        PendingIntent pi = PendingIntent.getService( this,1,i,PendingIntent.FLAG_NO_CREATE);
+        repeat(pi, "dropboxInterval");*/
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         Logger logger = Logger.getLogger();
 
         if(accessToken != null) { //check if we're authorized and identified to upload
-
-            String lastPicture = prefs.getString("lastPictureUploaded", "none");
 
             File folder = new File(Environment
                     .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),

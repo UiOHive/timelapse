@@ -1,5 +1,4 @@
 <resources>
-    <string name="APP_KEY">65ispm6rpzgnu23</string>
     <string name="title_activity_settings">Settings</string>
     <string name="app_name">LazyLapse</string>
     <string name="sign_in">Sign in</string>

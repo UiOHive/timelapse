@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 <string-array name="listArray">
-    <item>Headings</item>
-    <item>Headings and Details</item>
-    <item>All Data</item>
+    <item>EDOF (Extended Field Of View)</item>
+    <item>Infinity</item>
+    <item>Auto</item>
 </string-array>
 
 <string-array name="listValues">
