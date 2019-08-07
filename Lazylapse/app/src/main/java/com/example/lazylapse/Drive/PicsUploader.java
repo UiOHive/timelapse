@@ -54,6 +54,8 @@ public class PicsUploader extends Service implements PendingFunctionality {
 
         String accessToken = intent.getStringExtra(Controller.ACCESS_EXTRA);
 
+        Intent i = new Intent("com.airplanemode.OFF");
+        sendBroadcast(i);
 
         /*Intent i =  new Intent(PicsUploader.this, PhoneStatus.class);
         i.putExtra(Controller.ACCESS_EXTRA, accessToken);
@@ -93,7 +95,10 @@ public class PicsUploader extends Service implements PendingFunctionality {
             }catch (Exception e){
                 Logger.getLogger().appendLog(e.getMessage());
             }
-        }}
+        }
+        i = new Intent("com.airplanemode.ON");
+        sendBroadcast(i);
+        }
         catch(Exception e){
             Toast.makeText(this,"a "+e.getMessage(),Toast.LENGTH_LONG).show();
         }
