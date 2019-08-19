@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.lazylapse">
+    package="com.uio.lazylapse">
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -14,7 +14,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:name=".App"
+        android:name="com.uio.lazylapse.App"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher_lazylapse"
         android:label="@string/app_name"
@@ -23,25 +23,25 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
         <service
-            android:name=".Drive.PicsUploader"
+            android:name="com.uio.lazylapse.Drive.PicsUploader"
             android:enabled="true"
             android:exported="true"></service>
         <service
-            android:name=".SMS.SMSReader"
+            android:name="com.uio.lazylapse.SMS.SMSReader"
             android:enabled="true"
             android:exported="true" />
         <service
-            android:name=".SMS.PhoneStatus"
+            android:name="com.uio.lazylapse.SMS.PhoneStatus"
             android:enabled="true"
             android:exported="true" />
 
         <activity
-            android:name=".Interface.SettingsActivity"
+            android:name="com.uio.lazylapse.Interface.SettingsActivity"
             android:label="@string/title_activity_settings" />
-        <activity android:name=".Photo.Photographer" />
-        <activity android:name=".Drive.LoginActivityDropbox" />
+        <activity android:name="com.uio.lazylapse.Photo.Photographer" />
+        <activity android:name="com.uio.lazylapse.Drive.LoginActivityDropbox" />
         <activity
-            android:name=".Interface.Controller"
+            android:name="com.uio.lazylapse.Interface.Controller"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

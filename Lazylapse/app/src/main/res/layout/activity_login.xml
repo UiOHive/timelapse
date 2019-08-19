@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.lazylapse.Drive.LoginActivityDropbox">
+    tools:context="com.uio.lazylapse.Drive.LoginActivityDropbox">
     <!-- Update package name -->
 
     <Button
