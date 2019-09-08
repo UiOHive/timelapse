@@ -70,9 +70,4 @@ public class UploadTask extends AsyncTask {
         }
         return null;
     }
-    protected void onPostExecute(Result result){
-        if(this.response instanceof DbxApiException || this.response instanceof IOException){
-            (new LogPictures()).appendLog(this.file.getPath());
-        }
-    }
 }

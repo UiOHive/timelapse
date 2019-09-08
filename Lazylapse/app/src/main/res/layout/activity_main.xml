@@ -20,12 +20,12 @@
             android:backgroundTint="@android:color/holo_green_light"
             android:src="@android:drawable/ic_menu_preferences" />
 
-        <ImageButton
+        <!--<ImageButton
             android:id="@+id/buttonTimeLapse"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:backgroundTint="@android:color/holo_green_light"
-            android:src="@android:drawable/ic_menu_camera" />
+            android:src="@android:drawable/ic_menu_camera" /> -->
 
         <ImageButton
             android:id="@+id/buttonLaunchTimeLapse"

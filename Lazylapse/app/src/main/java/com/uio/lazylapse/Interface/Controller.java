@@ -82,17 +82,19 @@ public class Controller extends AppCompatActivity implements ILogVisitor {
                 startActivity(i);
             }
         });
+        /*
         cameraButton = findViewById(R.id.buttonTimeLapse);
         cameraButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intentDropbox = new Intent(Controller.this, LogUploader.class);
                 intentDropbox.putExtra(ACCESS_EXTRA,retrieveAccessToken());
                 startService(intentDropbox);
-                /*Intent i = new Intent("com.airplanemode.ON");
-                sendBroadcast(i);*/
+                //Intent i = new Intent("com.airplanemode.ON");
+                //sendBroadcast(i);
 
             }
         });
+        */
         timeLapseButton = findViewById(R.id.buttonLaunchTimeLapse);
         timeLapseButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {

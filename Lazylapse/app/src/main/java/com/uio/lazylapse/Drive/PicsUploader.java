@@ -82,7 +82,6 @@ public class PicsUploader extends Service implements PendingFunctionality {
                         try {
                             UploadTask upload = new UploadTask(DropboxClient.getClient(accessToken), file, getApplicationContext());
                             upload.execute();
-                            while(upload.getStatus() == AsyncTask.Status.RUNNING){}
                             logger.appendLog(upload.reponse.toString());
                         } catch (Exception e) {
                             Toast.makeText(this, "b " + e.getMessage(), Toast.LENGTH_LONG).show();
